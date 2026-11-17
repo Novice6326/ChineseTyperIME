@@ -97,7 +97,7 @@ class ChineseTyperService : InputMethodService() {
         }
         rows.forEachIndexed { rowIndex, chars ->
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-            if (rowIndex == 2 && !symbols) {
+            if (rowIndex == 2) {
                 row.addView(button(if (shifted) "⇧" else "↑") { shifted = !shifted; renderKeys() }, weight(1.25f, 48))
             }
             chars.forEach { ch ->
@@ -107,7 +107,7 @@ class ChineseTyperService : InputMethodService() {
                     if (shifted && !symbols) { shifted = false; renderKeys() }
                 }, weight(1f, 48))
             }
-            if (rowIndex == 2 && !symbols) {
+            if (rowIndex == 2) {
                 val del = button("⌫") { deleteOneCharacter() }
                 del.setOnLongClickListener { clearAllText(); true }
                 row.addView(del, weight(1.25f, 48))
@@ -205,10 +205,12 @@ class ChineseTyperService : InputMethodService() {
             updateStatus("逐字输入完成")
             return
         }
-        val ch = content.substring(index, index + 1)
+        val codePoint = content.codePointAt(index)
+        val ch = String(Character.toChars(codePoint))
         currentInputConnection?.commitText(ch, 1)
-        index++
+        index += Character.charCount(codePoint)
         updateStatus("逐字输入中：${index}/${content.length}")
+        val delay = Random.nextLong(90, 261) + if (ch in listOf("，", "。", "！", "？", "；", "：", "、", ".", "!", "?", ";", ":", "\n")) 350 else 0
         val delay = Random.nextLong(90, 261) + if (ch in "，。！？；：、.!?;:\n") 350 else 0
         handler.postDelayed(typeRunnable, delay)
     }
