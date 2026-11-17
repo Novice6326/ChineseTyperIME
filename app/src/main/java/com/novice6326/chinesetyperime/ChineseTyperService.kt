@@ -211,7 +211,6 @@ class ChineseTyperService : InputMethodService() {
         index += Character.charCount(codePoint)
         updateStatus("逐字输入中：${index}/${content.length}")
         val delay = Random.nextLong(90, 261) + if (ch in listOf("，", "。", "！", "？", "；", "：", "、", ".", "!", "?", ";", ":", "\n")) 350 else 0
-        val delay = Random.nextLong(90, 261) + if (ch in "，。！？；：、.!?;:\n") 350 else 0
         handler.postDelayed(typeRunnable, delay)
     }
 
