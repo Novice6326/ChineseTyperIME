@@ -29,6 +29,26 @@ class ChineseTyperService : InputMethodService() {
     private var symbols = false
     private lateinit var status: TextView
     private lateinit var keyboard: LinearLayout
+    private lateinit var clipboardManager: ClipboardManager
+    private val clipboardListener = ClipboardManager.OnPrimaryClipChangedListener {
+        if (running && !paused) {
+            paused = true
+            handler.removeCallbacks(typeRunnable)
+            updateStatus("检测到新复制内容：逐字输入已自动暂停，原任务进度 ${index}/${content.length} 已保留")
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboardManager.addPrimaryClipChangedListener(clipboardListener)
+    }
+
+    override fun onDestroy() {
+        clipboardManager.removePrimaryClipChangedListener(clipboardListener)
+        handler.removeCallbacksAndMessages(null)
+        super.onDestroy()
+    }
 
     override fun onCreateInputView(): View {
         val root = LinearLayout(this).apply {
@@ -122,8 +142,7 @@ class ChineseTyperService : InputMethodService() {
     }
 
     private fun loadClipboard() {
-        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip: ClipData? = cm.primaryClip
+        val clip: ClipData? = clipboardManager.primaryClip
         val next = if (clip != null && clip.itemCount > 0) clip.getItemAt(0).coerceToText(this).toString() else ""
         if (running) {
             paused = true
