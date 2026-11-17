@@ -147,12 +147,12 @@ class ChineseTyperService : InputMethodService() {
         if (running) {
             paused = true
             handler.removeCallbacks(typeRunnable)
-            updateStatus("检测到剪贴板变化：原任务已暂停，进度 \${index}/\${content.length} 保留；新内容未覆盖")
+            updateStatus("检测到剪贴板变化：原任务已暂停，进度 ${index}/${content.length} 保留；新内容未覆盖")
             return
         }
         content = next
         index = 0
-        updateStatus(if (content.isEmpty()) "剪贴板为空" else "已读取 \${content.length} 个字符")
+        updateStatus(if (content.isEmpty()) "剪贴板为空" else "已读取 ${content.length} 个字符")
     }
 
     private val typeRunnable = Runnable { typeNext() }
@@ -168,7 +168,7 @@ class ChineseTyperService : InputMethodService() {
     private fun togglePause() {
         if (!running) { updateStatus("当前没有正在输入的任务"); return }
         paused = !paused
-        updateStatus(if (paused) "已暂停（进度 \${index}/\${content.length}）" else "继续输入中")
+        updateStatus(if (paused) "已暂停（进度 ${index}/${content.length}）" else "继续输入中")
         if (paused) handler.removeCallbacks(typeRunnable) else typeNext()
     }
 
@@ -176,7 +176,7 @@ class ChineseTyperService : InputMethodService() {
         running = false
         paused = false
         handler.removeCallbacks(typeRunnable)
-        updateStatus("已停止，进度 \${index}/\${content.length}")
+        updateStatus("已停止，进度 ${index}/${content.length}")
     }
 
     private fun deleteOneCharacter() {
@@ -208,7 +208,7 @@ class ChineseTyperService : InputMethodService() {
         val ch = content.substring(index, index + 1)
         currentInputConnection?.commitText(ch, 1)
         index++
-        updateStatus("逐字输入中：\${index}/\${content.length}")
+        updateStatus("逐字输入中：${index}/${content.length}")
         val delay = Random.nextLong(90, 261) + if (ch in "，。！？；：、.!?;:\n") 350 else 0
         handler.postDelayed(typeRunnable, delay)
     }
